@@ -1,0 +1,55 @@
+---
+
+- name: APTLY | Installing dependencies
+  apt:
+    pkg: "{{ item }}"
+    state: present
+  with_items: "{{ required_libs }}"
+  tags:
+    skip_ansible_lint
+
+- name: APTLY | Ensure aptly group
+  group:
+    name: "{{ aptly_group }}"
+
+- name: APTLY | Ensure aptly user
+  user:
+    name: "{{ aptly_user }}"
+    group: "{{ aptly_group }}"
+    shell: /bin/bash
+
+- name: APTLY | Create install path
+  file:
+    path: "{{ aptly_install_path }}"
+    state: directory
+    owner: "{{ aptly_user }}"
+    group: "{{ aptly_group }}"
+
+- name: APTLY | Check aptly version
+  command: aptly version
+  register: aptly_check
+  changed_when: false
+  ignore_errors: true
+
+- name: APTLY | Untar aptly
+  unarchive:
+    extra_opts: ['--strip-components=1']
+    src: "{{ aptly_sources_url }}"
+    remote_src: yes
+    dest: "{{ aptly_install_path }}"
+    owner: "{{ aptly_user }}"
+    group: "{{ aptly_group }}"
+  when: 'aptly_force_reinstall or aptly_check|failed or aptly_check.stdout == "{{ aptly_version }}"'
+
+- name: APTLY | Link binary
+  file:
+    src: "{{ aptly_install_path }}/aptly"
+    dest: /usr/bin/aptly
+    state: link
+
+- name: APTLY | Copy Daemon script
+  template:
+    src: aptly.service.j2
+    dest: /lib/systemd/system/aptly.service
+    mode: 0644
+  notify: restart aptly

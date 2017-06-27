@@ -1,0 +1,7 @@
+---
+
+- name: restart aptly
+  systemd:
+    name: aptly
+    state: restarted
+  when: aptly_service_state != 'stopped'

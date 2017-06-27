@@ -1,0 +1,75 @@
+---
+
+- name: APTLY | Create aptly config and log paths
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ aptly_user }}"
+    group: "{{ aptly_group }}"
+    recurse: yes
+  with_items:
+    - "{{ aptly_conf_path }}"
+    - "{{ aptly_log_path }}"
+    - "{{ aptly_packages_path }}"
+    - "{{ aptly_gpg_path }}"
+
+- name: APTLY | Copy config
+  template:
+    src: aptly.conf.j2
+    dest: "{{ aptly_conf_path }}/aptly.conf"
+    mode: 0640
+    owner: "{{ aptly_user }}"
+    group: "{{ aptly_group }}"
+  notify: restart aptly
+
+- name: APTLY | Copy gpg batch file
+  template:
+    src: gpg.j2
+    dest: "/tmp/gpg"
+    mode: 0640
+    owner: "{{ aptly_user }}"
+    group: "{{ aptly_group }}"
+
+- name: APTLY | Obtain last key id
+  shell: bash -lc "gpg --list-keys | grep 'pub ' | tail -1 | sed 's/pub   2048D\///g' | cut -d' ' -f1"
+  become_user: "{{ aptly_user }}"
+  become: true
+  changed_when: false
+  register: aptly_key_info
+  ignore_errors: true
+##gpg --list-keys
+##/home/aptly/.gnupg/pubring.gpg
+##------------------------------
+##pub   2048D/F309885F 2017-06-27
+##uid                  aptly <a@b.com>
+##sub   2048g/17C77E35 2017-06-27
+
+# --> F309885F
+
+- name: APTLY | Set aptly_key_id
+  set_fact:
+    aptly_key_id: "{{ aptly_key_info.stdout }}"
+
+- name: APTLY | Generate gpg keys
+  command: gpg --batch --gen-key /tmp/gpg
+  become_user: "{{ aptly_user }}"
+  become: true
+  when: aptly_key_info|failed or aptly_key_info.stdout == ""
+
+- name: APTLY | Obtain last key id
+  shell: bash -lc "gpg --list-keys | grep 'pub ' | tail -1 | sed 's/pub   2048D\///g' | cut -d' ' -f1"
+  become_user: "{{ aptly_user }}"
+  become: true
+  register: aptly_key_info_new
+  when: aptly_key_info|failed or aptly_key_info.stdout == ""
+
+- name: APTLY | Export key
+  shell: gpg --export -a {{ aptly_user }} > {{ aptly_gpg_path }}/public.key
+  become_user: "{{ aptly_user }}"
+  become: true
+  when: aptly_key_info|failed or aptly_key_info.stdout == ""
+
+- name: APTLY | Set aptly_key_id
+  set_fact:
+    aptly_key_id: "{{ aptly_key_info.stdout }}"
+    when: aptly_key_info_new|changed

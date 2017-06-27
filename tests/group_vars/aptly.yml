@@ -1,0 +1,6 @@
+---
+aptly_email: test@idealista.com
+
+aptly_repositories:
+  - testing
+aptly_repositories_distribution: jessie

@@ -1,0 +1,17 @@
+{
+  "rootDir": "{{ aptly_packages_path }}",
+  "downloadConcurrency": 4,
+  "downloadSpeedLimit": 0,
+  "architectures": ["amd64","i386"],
+  "dependencyFollowSuggests": false,
+  "dependencyFollowRecommends": false,
+  "dependencyFollowAllVariants": false,
+  "dependencyFollowSource": false,
+  "gpgDisableSign": {{ aptly_disable_sign }},
+  "gpgDisableVerify": {{ aptly_disable_verify }},
+  "downloadSourcePackages": false,
+  "ppaDistributorID": "debian",
+  "ppaCodename": "",
+  "S3PublishEndpoints": {},
+  "SwiftPublishEndpoints": {}
+}

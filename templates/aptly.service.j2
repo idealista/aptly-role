@@ -1,0 +1,13 @@
+[Unit]
+Description=Aptly Debian repository management
+After=network.target
+
+[Service]
+Type=simple
+RuntimeDirectory=aptly
+ExecStart=/usr/bin/aptly serve -config={{ aptly_conf_path }}/aptly.conf -listen={{ aptly_host }}:{{ aptly_port }}
+ExecStop=/bin/kill -s QUIT $MAINPID
+User={{ aptly_user }}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,21 @@
+---
+
+- name: APTLY | Install
+  include: install.yml
+  tags:
+    - install
+
+- name: APTLY | Configure
+  include: config.yml
+  tags:
+    - configure
+
+- name: APTLY | Set repositories
+  include: repositories.yml
+  tags:
+    - repositories
+
+- name: APTLY | Service
+  include: service.yml
+  tags:
+    - service

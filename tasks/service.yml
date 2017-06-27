@@ -1,0 +1,8 @@
+---
+
+- name: APTLY | Configuring service
+  systemd:
+    name: aptly
+    state: "{{ aptly_service_state }}"
+    enabled: "{{ aptly_service_enabled }}"
+    daemon_reload: yes

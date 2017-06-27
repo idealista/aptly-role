@@ -1,0 +1,41 @@
+## General
+
+aptly_version: 1.0.1
+aptly_dist: "linux_amd64"
+
+## Service options
+
+# Owner
+aptly_user: aptly
+aptly_group: aptly
+
+# Host& Port
+aptly_host: 127.0.0.1
+aptly_port: 8001
+
+# start on boot
+aptly_service_enabled: yes
+# current state: started, stopped
+aptly_service_state: started
+
+# Files & Paths
+aptly_install_path: "/opt/aptly"
+aptly_conf_path: "/etc/aptly"
+aptly_log_path: "/var/log/aptly"
+aptly_packages_path: "/var/www/repositories"
+
+## Miscellaneous
+aptly_force_reinstall: false
+
+# Repositories
+aptly_repositories:
+  - release
+  - snapshot
+aptly_repositories_distribution: stretch
+
+# Security
+aptly_gpg_path: "{{ aptly_install_path }}/gpg"
+aptly_disable_sign: "false"
+aptly_disable_verify: "false"
+
+# aptly_email:

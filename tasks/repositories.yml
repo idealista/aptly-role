@@ -1,0 +1,46 @@
+---
+
+- name: APTLY | Obtain created repos
+  command: aptly repo list -raw -config={{ aptly_conf_path }}/aptly.conf
+  become_user: "{{ aptly_user }}"
+  become: true
+  changed_when: false
+  register: aptly_repo_list
+
+- name: APTLY | Create repositories
+  command: >
+    aptly repo create
+    -config={{ aptly_conf_path }}/aptly.conf
+    -distribution={{ aptly_repositories_distribution }}
+    -component=main
+    {{ item }}
+  become_user: "{{ aptly_user }}"
+  become: true
+  ignore_errors: yes
+  with_items: "{{ aptly_repositories | difference(aptly_repo_list.stdout_lines) }}"
+  notify: restart aptly
+  tags:
+    skip_ansible_lint
+
+- name: APTLY | Obtain published repos
+  shell: bash -lc "aptly publish list -raw -config={{ aptly_conf_path }}/aptly.conf | cut -d' ' -f1"
+  become_user: "{{ aptly_user }}"
+  become: true
+  changed_when: false
+  register: aptly_publish_list
+
+- name: APTLY | Publish repositories
+  command: >
+    aptly publish repo
+    -config={{ aptly_conf_path }}/aptly.conf
+    -component=main
+    -gpg-key={{ aptly_key_id }}
+    {{ item }}
+    {{ item }}
+  become_user: "{{ aptly_user }}"
+  become: true
+  ignore_errors: yes
+  with_items: "{{ aptly_repositories | difference(aptly_repo_list.stdout_lines) }}"
+  notify: restart aptly
+  tags:
+    skip_ansible_lint

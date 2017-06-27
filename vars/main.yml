@@ -1,0 +1,8 @@
+---
+required_libs:
+  - haveged
+
+aptly_mirror: "https://bintray.com/artifact/download/smira/aptly"
+aptly_package_name: "aptly_{{ aptly_version }}_{{ aptly_dist }}"
+aptly_package: "{{ aptly_package_name }}.tar.gz"
+aptly_sources_url: "{{ aptly_mirror }}/{{ aptly_package }}"

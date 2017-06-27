@@ -1,0 +1,5 @@
+---
+
+- hosts: aptly
+  roles:
+    - repository-role
