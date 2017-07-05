@@ -2,5 +2,6 @@
 aptly_email: test@idealista.com
 
 aptly_repositories:
-  - testing
-aptly_repositories_distribution: jessie
+  - release
+  - snapshot
+aptly_repositories_distribution: stretch

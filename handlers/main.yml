@@ -5,3 +5,9 @@
     name: aptly
     state: restarted
   when: aptly_service_state != 'stopped'
+
+- name: restart aptly-api
+  systemd:
+    name: aptly-api
+    state: restarted
+  when: aptly_service_state != 'stopped'

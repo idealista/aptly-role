@@ -6,3 +6,10 @@
     state: "{{ aptly_service_state }}"
     enabled: "{{ aptly_service_enabled }}"
     daemon_reload: yes
+
+- name: APTLY | Configuring service (API)
+  systemd:
+    name: aptly-api
+    state: "{{ aptly_service_state }}"
+    enabled: "{{ aptly_service_enabled }}"
+    daemon_reload: yes
