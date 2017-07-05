@@ -39,13 +39,7 @@
     dest: "{{ aptly_install_path }}"
     owner: "{{ aptly_user }}"
     group: "{{ aptly_group }}"
-    mode: 0750
   when: 'aptly_force_reinstall or aptly_check|failed or aptly_check.stdout == "{{ aptly_version }}"'
-
-- name: APTLY | Enable binary execution
-  file:
-    path: "{{ aptly_install_path }}/aptly"
-    mode: 0755
 
 - name: APTLY | Link binary
   file:
@@ -59,10 +53,3 @@
     dest: /lib/systemd/system/aptly.service
     mode: 0644
   notify: restart aptly
-
-- name: APTLY | Copy Daemon script (API)
-  template:
-    src: aptly-api.service.j2
-    dest: /lib/systemd/system/aptly-api.service
-    mode: 0644
-  notify: restart aptly-api
