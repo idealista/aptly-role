@@ -8,15 +8,13 @@
     group: "{{ aptly_group }}"
     recurse: yes
   with_items:
-    - "{{ aptly_conf_path }}"
-    - "{{ aptly_log_path }}"
     - "{{ aptly_packages_path }}"
     - "{{ aptly_gpg_path }}"
 
 - name: APTLY | Copy config
   template:
     src: aptly.conf.j2
-    dest: "{{ aptly_conf_path }}/aptly.conf"
+    dest: /etc/aptly.conf
     mode: 0640
     owner: "{{ aptly_user }}"
     group: "{{ aptly_group }}"
@@ -30,13 +28,19 @@
     owner: "{{ aptly_user }}"
     group: "{{ aptly_group }}"
 
+- name: APTLY | Set key query
+  set_fact:
+    the_query: gpg --list-keys | grep 'pub ' | tail -1 | sed 's/pub   2048D\///g' | cut -d' ' -f1
+
 - name: APTLY | Obtain last key id
-  shell: bash -lc "gpg --list-keys | grep 'pub ' | tail -1 | sed 's/pub   2048D\///g' | cut -d' ' -f1"
+  shell: bash -lc "{{ the_query }}"
   become_user: "{{ aptly_user }}"
   become: true
   changed_when: false
   register: aptly_key_info
   ignore_errors: true
+  tags:
+    skip_ansible_lint
 ##gpg --list-keys
 ##/home/aptly/.gnupg/pubring.gpg
 ##------------------------------
@@ -57,11 +61,13 @@
   when: aptly_key_info|failed or aptly_key_info.stdout == ""
 
 - name: APTLY | Obtain last key id
-  shell: bash -lc "gpg --list-keys | grep 'pub ' | tail -1 | sed 's/pub   2048D\///g' | cut -d' ' -f1"
+  shell: bash -lc "{{ the_query }}"
   become_user: "{{ aptly_user }}"
   become: true
   register: aptly_key_info_new
   when: aptly_key_info|failed or aptly_key_info.stdout == ""
+  tags:
+    skip_ansible_lint
 
 - name: APTLY | Export key
   shell: gpg --export -a {{ aptly_user }} > {{ aptly_gpg_path }}/public.key

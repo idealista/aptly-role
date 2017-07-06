@@ -11,22 +11,9 @@ def AnsibleVars(Ansible):
     return Ansible("include_vars", "tests/group_vars/aptly.yml")["ansible_facts"]
 
 
-def test_kafka_user(User, Group, AnsibleDefaults):
+def test_aptly_user(User, Group, AnsibleDefaults):
     assert User(AnsibleDefaults["aptly_user"]).exists
     assert Group(AnsibleDefaults["aptly_group"]).exists
-
-
-def test_kafka_conf(File, AnsibleDefaults):
-    conf_dir = File(AnsibleDefaults["aptly_conf_path"])
-    conf_file = File(AnsibleDefaults["aptly_conf_path"] + "/aptly.conf")
-    assert conf_dir.exists
-    assert conf_dir.is_directory
-    assert conf_dir.user == AnsibleDefaults["aptly_user"]
-    assert conf_dir.group == AnsibleDefaults["aptly_group"]
-    assert conf_file.exists
-    assert conf_file.is_file
-    assert conf_file.user == AnsibleDefaults["aptly_user"]
-    assert conf_file.group == AnsibleDefaults["aptly_group"]
 
 
 def test_aptly_service(File, Service, Socket, AnsibleDefaults):
@@ -35,6 +22,15 @@ def test_aptly_service(File, Service, Socket, AnsibleDefaults):
     assert File("/lib/systemd/system/aptly.service").exists
     assert Service("aptly").is_enabled
     assert Service("aptly").is_running
+    assert Socket("tcp://" + host + ":" + str(port)).is_listening
+
+
+def test_aptly_api_service(File, Service, Socket, AnsibleDefaults):
+    host = AnsibleDefaults["aptly_host"]
+    port = AnsibleDefaults["aptly_api_port"]
+    assert File("/lib/systemd/system/aptly-api.service").exists
+    assert Service("aptly-api").is_enabled
+    assert Service("aptly-api").is_running
     assert Socket("tcp://" + host + ":" + str(port)).is_listening
 
 

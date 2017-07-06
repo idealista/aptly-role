@@ -1,11 +1,11 @@
 [Unit]
-Description=Aptly Debian repository management
+Description=Aptly API Debian repository management
 After=network.target
 
 [Service]
 Type=simple
 RuntimeDirectory=aptly
-ExecStart=/usr/bin/aptly serve -config=/etc/aptly.conf -listen={{ aptly_host }}:{{ aptly_port }}
+ExecStart=/usr/bin/aptly api serve -config=/etc/aptly.conf -listen={{ aptly_host }}:{{ aptly_api_port }}
 ExecStop=/bin/kill -s QUIT $MAINPID
 User={{ aptly_user }}
 

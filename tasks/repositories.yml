@@ -1,7 +1,14 @@
 ---
 
+# Needed because a bug when api is started ->  ERROR: can't open database:
+- name: APTLY | Stop service (API)
+  systemd:
+    name: aptly-api
+    state: stopped
+  changed_when: false
+
 - name: APTLY | Obtain created repos
-  command: aptly repo list -raw -config={{ aptly_conf_path }}/aptly.conf
+  command: aptly repo list -raw -config=/etc/aptly.conf
   become_user: "{{ aptly_user }}"
   become: true
   changed_when: false
@@ -10,7 +17,7 @@
 - name: APTLY | Create repositories
   command: >
     aptly repo create
-    -config={{ aptly_conf_path }}/aptly.conf
+    -config=/etc/aptly.conf
     -distribution={{ aptly_repositories_distribution }}
     -component=main
     {{ item }}
@@ -23,7 +30,7 @@
     skip_ansible_lint
 
 - name: APTLY | Obtain published repos
-  shell: bash -lc "aptly publish list -raw -config={{ aptly_conf_path }}/aptly.conf | cut -d' ' -f1"
+  shell: bash -lc "aptly publish list -raw -config=/etc/aptly.conf | cut -d' ' -f1"
   become_user: "{{ aptly_user }}"
   become: true
   changed_when: false
@@ -32,7 +39,7 @@
 - name: APTLY | Publish repositories
   command: >
     aptly publish repo
-    -config={{ aptly_conf_path }}/aptly.conf
+    -config=/etc/aptly.conf
     -component=main
     -gpg-key={{ aptly_key_id }}
     {{ item }}
@@ -40,7 +47,7 @@
   become_user: "{{ aptly_user }}"
   become: true
   ignore_errors: yes
-  with_items: "{{ aptly_repositories | difference(aptly_repo_list.stdout_lines) }}"
+  with_items: "{{ aptly_repositories | difference(aptly_publish_list.stdout_lines) }}"
   notify: restart aptly
   tags:
     skip_ansible_lint
