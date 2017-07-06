@@ -13,3 +13,4 @@
     state: "{{ aptly_service_state }}"
     enabled: "{{ aptly_service_enabled }}"
     daemon_reload: yes
+  changed_when: false

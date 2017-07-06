@@ -1,6 +1,7 @@
 ---
 required_libs:
   - haveged
+  - graphviz
 
 aptly_mirror: "https://bintray.com/artifact/download/smira/aptly"
 aptly_package_name: "aptly_{{ aptly_version }}_{{ aptly_dist }}"

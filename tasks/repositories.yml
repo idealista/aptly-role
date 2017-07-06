@@ -1,5 +1,12 @@
 ---
 
+# Needed because a bug when api is started ->  ERROR: can't open database:
+- name: APTLY | Stop service (API)
+  systemd:
+    name: aptly-api
+    state: stopped
+  changed_when: false
+
 - name: APTLY | Obtain created repos
   command: aptly repo list -raw -config=/etc/aptly.conf
   become_user: "{{ aptly_user }}"
